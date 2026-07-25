@@ -1,0 +1,134 @@
+Objective
+The goal of this project is to apply the course material. You will build an end-to-end RAG or agent application.
+
+Course syllabus
+Module 1: Agentic RAG
+Build a RAG pipeline with keyword search
+Make it agentic with function calling
+Module 2: Vector Search
+Semantic search with embeddings
+minsearch, sqlitesearch, and PGVector
+Module 3: Orchestration
+AI orchestration with Kestra
+Workshop: Data Ingestion
+Build dlt pipelines to ingest and analyze LLM traces
+Filesystem and REST API sources, DuckDB, and marimo dashboards
+Module 4: Evaluation
+Measure retrieval and answer quality
+Offline and online evaluation
+Module 5: Monitoring
+Monitor user feedback and system health
+Live dashboards
+Module 6: Best Practices
+LangChain
+Hybrid search: combine vector and keyword search
+Rerank results for higher precision
+Module 7: End-to-End Project
+A complete project example: a fitness assistant built with LLMs
+Capstone Project
+Ship a complete end-to-end project of your choice from scratch
+
+Capstone Project
+The capstone is your chance to apply everything end-to-end. You'll build a complete, working RAG application built and owned by you.
+
+What you'll build:
+
+A searchable knowledge base. Choose a dataset, ingest, clean, and store it for retrieval
+A retrieval pipeline. Implement the full RAG flow: retrieve context, assemble prompts, call an LLM, return grounded answers
+An evaluation process. Measure how well your system retrieves and answers using search metrics or LLM-as-a-Judge
+A user-facing interface. A simple UI or API (Streamlit, FastAPI, or similar) so others can try your app
+Monitoring & feedback loops. Track queries, feedback, and performance over time
+Past community project ideas
+Fitness & nutrition assistant
+Study companion for textbooks or course notes
+Medical FAQ assistant
+Codebase Q&A bot
+News summarization and retrieval tool
+
+
+Problem statement
+For the project, we ask you to build an end-to-end LLM application. It can be a RAG application, an agent application, or a combination of both.
+
+For that, you need:
+
+Select a dataset or API-backed data source that you're interested in (see Datasets for examples and ideas)
+Ingest the data into a knowledge base, or connect to the API that provides the data
+Implement the application flow: retrieve context from the data, optionally call tools, build the prompt, and send it to an LLM
+Evaluate the performance of your RAG or agent flow
+Create an interface for the application
+Collect user feedback and monitor your application
+
+Project Documentation
+Your project rises or falls with its documentation.
+
+Use these recommendations:
+
+Write for people who didn't take the course. Explain the problem, the data, and the flow without assuming the reader watched the videos.
+Mention the evaluation criteria in your README. This makes it easier for reviewers to find the relevant parts.
+Add screenshots where they help. For example, show the UI, the monitoring dashboard, or examples of answers from your app.
+Explain how to run the project. Include setup steps, dependencies, configuration, and any environment variables.
+Show how the project works. Add examples of inputs and outputs, common use cases, or a short walkthrough.
+Add a short app preview video if it helps. If you're using Streamlit, you can record it from the app's top-right menu (Streamlit Guide). Then drag and drop the video into the online GitHub editor of your README (Ref).
+Split long documentation into separate files if needed. For example, use setup.md, usage.md, or contributing.md.
+Keep the README up to date when the project changes.
+Remember, clear and comprehensive documentation not only helps others but is also a valuable reference for yourself in the future.
+
+Technologies
+You don't have to limit yourself to technologies covered in the course.
+
+You can use alternatives as well:
+
+LLM: OpenAI, Ollama, Groq, AWS Bedrock, etc
+Knowledge base: any text, relational or vector database, including in-memory ones like we implemented in the course or SQLite
+Monitoring: Grafana, Kibana, Streamlit, dash, etc
+Interface: Streamlit, dash, Flask, FastAPI, Django, etc (could be UI or API)
+Ingestion pipeline: Kestra, dlt, Mage, Airflow, Prefect, python scripts, etc
+If you use a tool that wasn't covered in the course, explain what that tool does. Also explain how to use it.
+
+Evaluation Criteria
+Use these criteria to score the project:
+
+Problem description
+0 points: The problem is not described
+1 point: The problem is described but briefly or unclearly
+2 points: The problem is well-described and it's clear what problem the project solves
+Retrieval flow
+0 points: No knowledge base or LLM is used
+1 point: No knowledge base is used, and the LLM is queried directly
+2 points: Both a knowledge base and an LLM are used in the flow
+Retrieval evaluation
+0 points: No evaluation of retrieval is provided
+1 point: Only one retrieval approach is evaluated
+2 points: Multiple retrieval approaches are evaluated, and the best one is used
+LLM evaluation
+0 points: No evaluation of final LLM output is provided
+1 point: Only one approach (e.g., one prompt) is evaluated
+2 points: Multiple approaches are evaluated, and the best one is used
+Interface
+0 points: No way to interact with the application at all
+1 point: Command line interface, a script, or a Jupyter notebook
+2 points: UI (e.g., Streamlit), web application (e.g., Django), or an API (e.g., built with FastAPI)
+Ingestion pipeline
+0 points: No ingestion
+1 point: Semi-automated ingestion of the dataset into the knowledge base, e.g., with a Jupyter notebook or a Python script
+2 points: Automated ingestion with a special tool (e.g., Kestra, dlt, Airflow, Prefect)
+Monitoring
+0 points: No monitoring
+1 point: User feedback is collected OR there's a monitoring dashboard
+2 points: User feedback is collected and there's a dashboard with at least 5 charts
+Containerization
+0 points: No containerization
+1 point: Dockerfile is provided for the main application OR there's a docker-compose for the dependencies only
+2 points: Everything is in docker-compose
+Reproducibility
+0 points: No instructions on how to run the code, the data is missing, or it's unclear how to access it
+1 point: Some instructions are provided but are incomplete, OR instructions are clear and complete, the code works, but the data is missing
+2 points: Instructions are clear, the dataset is accessible, it's easy to run the code, and it works. The versions for all dependencies are specified.
+Best practices
+ Hybrid search: combining both text and vector search (at least evaluating it) (1 point)
+ Document re-ranking (1 point)
+ User query rewriting (1 point)
+Bonus points (not covered in the course)
+ Deployment to the cloud (2 points)
+ Up to 3 extra bonus points if you want to award for something extra (write in feedback for what)
+Project
