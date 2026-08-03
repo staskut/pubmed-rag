@@ -1,0 +1,94 @@
+{
+  "uid": "pubmed-rag",
+  "title": "PubMed RAG — Monitoring",
+  "tags": ["pubmed-rag"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "30s",
+  "time": { "from": "now-7d", "to": "now" },
+  "templating": { "list": [] },
+  "annotations": { "list": [] },
+  "panels": [
+    {
+      "id": 1, "type": "stat", "title": "Total queries",
+      "datasource": { "type": "postgres", "uid": "pubmedrag_pg" },
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "steps": [{ "color": "blue", "value": null }] } }, "overrides": [] },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "colorMode": "background", "graphMode": "none", "textMode": "value" },
+      "targets": [ { "refId": "A", "format": "table", "datasource": { "type": "postgres", "uid": "pubmedrag_pg" }, "rawQuery": true, "rawSql": "SELECT count(*) AS \"queries\" FROM query_logs WHERE $__timeFilter(ts)" } ]
+    },
+    {
+      "id": 2, "type": "stat", "title": "Avg latency",
+      "datasource": { "type": "postgres", "uid": "pubmedrag_pg" },
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 0 },
+      "fieldConfig": { "defaults": { "unit": "ms", "color": { "mode": "thresholds" }, "thresholds": { "steps": [{ "color": "green", "value": null }, { "color": "orange", "value": 8000 }, { "color": "red", "value": 15000 }] } }, "overrides": [] },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "colorMode": "background", "graphMode": "none", "textMode": "value" },
+      "targets": [ { "refId": "A", "format": "table", "datasource": { "type": "postgres", "uid": "pubmedrag_pg" }, "rawQuery": true, "rawSql": "SELECT avg(latency_ms) AS \"avg_ms\" FROM query_logs WHERE $__timeFilter(ts)" } ]
+    },
+    {
+      "id": 3, "type": "stat", "title": "Total cost",
+      "datasource": { "type": "postgres", "uid": "pubmedrag_pg" },
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 0 },
+      "fieldConfig": { "defaults": { "unit": "currencyUSD", "decimals": 4, "color": { "mode": "thresholds" }, "thresholds": { "steps": [{ "color": "purple", "value": null }] } }, "overrides": [] },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "colorMode": "background", "graphMode": "none", "textMode": "value" },
+      "targets": [ { "refId": "A", "format": "table", "datasource": { "type": "postgres", "uid": "pubmedrag_pg" }, "rawQuery": true, "rawSql": "SELECT COALESCE(sum(cost_usd),0) AS \"cost_usd\" FROM query_logs WHERE $__timeFilter(ts)" } ]
+    },
+    {
+      "id": 4, "type": "stat", "title": "Satisfaction (👍 rate)",
+      "datasource": { "type": "postgres", "uid": "pubmedrag_pg" },
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 0 },
+      "fieldConfig": { "defaults": { "unit": "percent", "decimals": 0, "color": { "mode": "thresholds" }, "thresholds": { "steps": [{ "color": "red", "value": null }, { "color": "orange", "value": 50 }, { "color": "green", "value": 75 }] } }, "overrides": [] },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "colorMode": "background", "graphMode": "none", "textMode": "value" },
+      "targets": [ { "refId": "A", "format": "table", "datasource": { "type": "postgres", "uid": "pubmedrag_pg" }, "rawQuery": true, "rawSql": "SELECT 100.0*sum(CASE WHEN rating=1 THEN 1 ELSE 0 END)/NULLIF(count(*),0) AS \"pct\" FROM feedback WHERE $__timeFilter(ts)" } ]
+    },
+    {
+      "id": 5, "type": "timeseries", "title": "Query volume over time",
+      "datasource": { "type": "postgres", "uid": "pubmedrag_pg" },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 4 },
+      "fieldConfig": { "defaults": { "custom": { "drawStyle": "bars", "fillOpacity": 60, "lineWidth": 1 }, "color": { "mode": "palette-classic" } }, "overrides": [] },
+      "options": { "legend": { "showLegend": false }, "tooltip": { "mode": "single" } },
+      "targets": [ { "refId": "A", "format": "time_series", "datasource": { "type": "postgres", "uid": "pubmedrag_pg" }, "rawQuery": true, "rawSql": "SELECT $__timeGroupAlias(ts,'$__interval'), count(*) AS \"queries\" FROM query_logs WHERE $__timeFilter(ts) GROUP BY 1 ORDER BY 1" } ]
+    },
+    {
+      "id": 6, "type": "timeseries", "title": "Answer latency (p50 / p95)",
+      "datasource": { "type": "postgres", "uid": "pubmedrag_pg" },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 4 },
+      "fieldConfig": { "defaults": { "unit": "ms", "custom": { "drawStyle": "line", "fillOpacity": 10, "lineWidth": 2, "spanNulls": true }, "color": { "mode": "palette-classic" } }, "overrides": [] },
+      "options": { "legend": { "showLegend": true, "displayMode": "list" }, "tooltip": { "mode": "multi" } },
+      "targets": [ { "refId": "A", "format": "time_series", "datasource": { "type": "postgres", "uid": "pubmedrag_pg" }, "rawQuery": true, "rawSql": "SELECT $__timeGroupAlias(ts,'$__interval'), percentile_cont(0.5) WITHIN GROUP (ORDER BY latency_ms) AS \"p50\", percentile_cont(0.95) WITHIN GROUP (ORDER BY latency_ms) AS \"p95\" FROM query_logs WHERE $__timeFilter(ts) GROUP BY 1 ORDER BY 1" } ]
+    },
+    {
+      "id": 7, "type": "timeseries", "title": "Token usage over time",
+      "datasource": { "type": "postgres", "uid": "pubmedrag_pg" },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 12 },
+      "fieldConfig": { "defaults": { "unit": "short", "custom": { "drawStyle": "bars", "fillOpacity": 70, "lineWidth": 1, "stacking": { "mode": "normal" } }, "color": { "mode": "palette-classic" } }, "overrides": [] },
+      "options": { "legend": { "showLegend": true, "displayMode": "list" }, "tooltip": { "mode": "multi" } },
+      "targets": [ { "refId": "A", "format": "time_series", "datasource": { "type": "postgres", "uid": "pubmedrag_pg" }, "rawQuery": true, "rawSql": "SELECT $__timeGroupAlias(ts,'$__interval'), sum(prompt_tokens) AS \"prompt\", sum(completion_tokens) AS \"completion\" FROM query_logs WHERE $__timeFilter(ts) GROUP BY 1 ORDER BY 1" } ]
+    },
+    {
+      "id": 8, "type": "piechart", "title": "Retrieval strategy usage",
+      "datasource": { "type": "postgres", "uid": "pubmedrag_pg" },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 12 },
+      "fieldConfig": { "defaults": { "color": { "mode": "palette-classic" } }, "overrides": [] },
+      "options": { "legend": { "showLegend": true, "displayMode": "list", "placement": "right" }, "pieType": "donut", "reduceOptions": { "calcs": ["lastNotNull"], "values": true } },
+      "targets": [ { "refId": "A", "format": "table", "datasource": { "type": "postgres", "uid": "pubmedrag_pg" }, "rawQuery": true, "rawSql": "SELECT strategy AS \"metric\", count(*) AS \"value\" FROM query_logs WHERE $__timeFilter(ts) GROUP BY strategy ORDER BY 2 DESC" } ]
+    },
+    {
+      "id": 9, "type": "timeseries", "title": "Feedback over time (👍 / 👎)",
+      "datasource": { "type": "postgres", "uid": "pubmedrag_pg" },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 20 },
+      "fieldConfig": { "defaults": { "custom": { "drawStyle": "bars", "fillOpacity": 80, "lineWidth": 1, "stacking": { "mode": "normal" } }, "color": { "mode": "palette-classic" } }, "overrides": [ { "matcher": { "id": "byName", "options": "down" }, "properties": [{ "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }] }, { "matcher": { "id": "byName", "options": "up" }, "properties": [{ "id": "color", "value": { "fixedColor": "green", "mode": "fixed" } }] } ] },
+      "options": { "legend": { "showLegend": true, "displayMode": "list" }, "tooltip": { "mode": "multi" } },
+      "targets": [ { "refId": "A", "format": "time_series", "datasource": { "type": "postgres", "uid": "pubmedrag_pg" }, "rawQuery": true, "rawSql": "SELECT $__timeGroupAlias(ts,'$__interval'), sum(CASE WHEN rating=1 THEN 1 ELSE 0 END) AS \"up\", sum(CASE WHEN rating=-1 THEN 1 ELSE 0 END) AS \"down\" FROM feedback WHERE $__timeFilter(ts) GROUP BY 1 ORDER BY 1" } ]
+    },
+    {
+      "id": 10, "type": "table", "title": "Recent questions",
+      "datasource": { "type": "postgres", "uid": "pubmedrag_pg" },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 20 },
+      "fieldConfig": { "defaults": {}, "overrides": [ { "matcher": { "id": "byName", "options": "cost_usd" }, "properties": [{ "id": "unit", "value": "currencyUSD" }, { "id": "decimals", "value": 4 }] }, { "matcher": { "id": "byName", "options": "latency_ms" }, "properties": [{ "id": "unit", "value": "ms" }] } ] },
+      "options": { "showHeader": true },
+      "targets": [ { "refId": "A", "format": "table", "datasource": { "type": "postgres", "uid": "pubmedrag_pg" }, "rawQuery": true, "rawSql": "SELECT ts AS \"time\", question, strategy, latency_ms, cost_usd FROM query_logs WHERE $__timeFilter(ts) ORDER BY ts DESC LIMIT 20" } ]
+    }
+  ]
+}
