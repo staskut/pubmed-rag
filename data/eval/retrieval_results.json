@@ -1,0 +1,26 @@
+{
+  "k": 10,
+  "results": {
+    "keyword": {
+      "hit_rate": 0.3,
+      "mrr": 0.3,
+      "n": 50
+    },
+    "vector": {
+      "hit_rate": 0.92,
+      "mrr": 0.8666666666666667,
+      "n": 50
+    },
+    "hybrid": {
+      "hit_rate": 0.92,
+      "mrr": 0.8566666666666667,
+      "n": 50
+    },
+    "hybrid_rerank": {
+      "hit_rate": 0.92,
+      "mrr": 0.8528571428571428,
+      "n": 50
+    }
+  },
+  "best_strategy": "vector"
+}

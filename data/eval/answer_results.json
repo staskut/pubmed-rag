@@ -1,0 +1,25 @@
+{
+  "n": 15,
+  "strategy": "hybrid_rerank",
+  "results": {
+    "concise": {
+      "groundedness": 4.933,
+      "relevance": 5.0,
+      "completeness": 4.733,
+      "overall": 4.889
+    },
+    "structured": {
+      "groundedness": 5.0,
+      "relevance": 5.0,
+      "completeness": 4.867,
+      "overall": 4.956
+    },
+    "terse": {
+      "groundedness": 4.933,
+      "relevance": 5.0,
+      "completeness": 4.733,
+      "overall": 4.889
+    }
+  },
+  "best_variant": "structured"
+}

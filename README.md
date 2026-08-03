@@ -81,12 +81,20 @@ make up            # or: docker compose up -d
 # 3. install Python deps (Python 3.12 via uv)
 make install       # or: uv sync
 
-# 4. build the knowledge base: fetch → load → chunk → embed
-make build-kb MAX=2000     # ~2k articles; use MAX=5000 for the full corpus
+# 4. build the knowledge base — pick ONE:
+make restore-data          # FAST: use the shipped ~5k-article corpus (data/kb.duckdb.gz)
+# make build-kb MAX=2000   # or fetch fresh from NCBI (~2k here; MAX=5000 for full, ~80 min)
 
-# 5. run the app
+# 5. add embeddings (needs OPENAI_API_KEY; ~$0.38 for the full corpus)
+make embed
+
+# 6. run the app
 make ui            # or: uv run streamlit run app.py  → http://localhost:8501
 ```
+
+> **Shipped data:** the repo includes the built corpus at `data/kb.duckdb.gz` (~54 MB), so
+> reviewers can skip the slow NCBI fetch — `make restore-data` decompresses and loads it.
+> Embeddings are *not* shipped (they'd be ~300 MB); `make embed` regenerates them.
 
 Then open:
 - **App:** http://localhost:8501

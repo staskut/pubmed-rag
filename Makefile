@@ -16,8 +16,13 @@ down:               ## stop containers (keeps data volumes)
 logs:               ## tail container logs
 	docker compose logs -f
 
-ingest:             ## fetch corpus -> DuckDB -> Postgres -> chunks
+ingest:             ## fetch corpus from NCBI -> DuckDB -> Postgres -> chunks
 	uv run python -m pubmed_rag.pipeline --max $(MAX)
+	uv run python -m pubmed_rag.load_to_postgres
+	uv run python -m pubmed_rag.chunk
+
+restore-data:       ## use the SHIPPED corpus (skips the ~80-min fetch): unzip -> Postgres -> chunks
+	gunzip -kf data/kb.duckdb.gz
 	uv run python -m pubmed_rag.load_to_postgres
 	uv run python -m pubmed_rag.chunk
 
