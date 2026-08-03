@@ -1,0 +1,27 @@
+{
+  "k": 10,
+  "query_rewriting": true,
+  "results": {
+    "keyword": {
+      "hit_rate": 0.82,
+      "mrr": 0.546047619047619,
+      "n": 50
+    },
+    "vector": {
+      "hit_rate": 0.9,
+      "mrr": 0.8473333333333334,
+      "n": 50
+    },
+    "hybrid": {
+      "hit_rate": 0.9,
+      "mrr": 0.7856666666666666,
+      "n": 50
+    },
+    "hybrid_rerank": {
+      "hit_rate": 0.94,
+      "mrr": 0.93,
+      "n": 50
+    }
+  },
+  "best_strategy": "hybrid_rerank"
+}

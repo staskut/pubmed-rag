@@ -13,12 +13,30 @@ from __future__ import annotations
 import argparse
 import json
 
+import json
+import os
+
 from ..db import connect
-from ..rag import STRATEGIES  # includes keyword/vector/hybrid/hybrid_rerank
+from ..rag import STRATEGIES, rewrite_query  # includes keyword/vector/hybrid/hybrid_rerank
 from .ground_truth import load
 
 STRATEGY_ORDER = ["keyword", "vector", "hybrid", "hybrid_rerank"]
 OUT = "data/eval/retrieval_results.json"
+REWRITE_CACHE = "data/eval/rewrites.json"
+
+
+def _rewrites(gt: list[dict]) -> dict[str, str]:
+    """Rewritten form of each question (cached, since it costs LLM calls)."""
+    cache = json.load(open(REWRITE_CACHE)) if os.path.exists(REWRITE_CACHE) else {}
+    changed = False
+    for item in gt:
+        q = item["question"]
+        if q not in cache:
+            cache[q] = rewrite_query(q)[0]
+            changed = True
+    if changed:
+        json.dump(cache, open(REWRITE_CACHE, "w"), indent=2)
+    return cache
 
 
 def _rank_of(pmid: str, hits) -> int | None:
@@ -34,8 +52,9 @@ def _rank_of(pmid: str, hits) -> int | None:
     return None
 
 
-def evaluate(k: int = 10, gt_path: str | None = None) -> dict:
+def evaluate(k: int = 10, gt_path: str | None = None, rewrite: bool = False) -> dict:
     gt = load(gt_path) if gt_path else load()
+    rewrites = _rewrites(gt) if rewrite else {}
     conn = connect()
     results: dict[str, dict] = {}
     try:
@@ -43,7 +62,8 @@ def evaluate(k: int = 10, gt_path: str | None = None) -> dict:
             search = STRATEGIES[strat]
             hits_sum = rr_sum = 0.0
             for item in gt:
-                hits = search(item["question"], k=k, conn=conn)
+                query = rewrites[item["question"]] if rewrite else item["question"]
+                hits = search(query, k=k, conn=conn)
                 rank = _rank_of(item["pmid"], hits)
                 if rank:
                     hits_sum += 1
@@ -54,18 +74,20 @@ def evaluate(k: int = 10, gt_path: str | None = None) -> dict:
         conn.close()
 
     best = max(results, key=lambda s: results[s]["mrr"])
-    payload = {"k": k, "results": results, "best_strategy": best}
-    with open(OUT, "w") as f:
+    out_path = OUT.replace(".json", "_rewrite.json") if rewrite else OUT
+    payload = {"k": k, "query_rewriting": rewrite, "results": results, "best_strategy": best}
+    with open(out_path, "w") as f:
         json.dump(payload, f, indent=2)
 
-    print(f"\nRetrieval evaluation on {len(gt)} questions (k={k}):\n")
+    label = "rewritten queries" if rewrite else "raw questions"
+    print(f"\nRetrieval evaluation on {len(gt)} {label} (k={k}):\n")
     print(f"  {'strategy':<16}{'Hit Rate':>10}{'MRR':>10}")
     print("  " + "-" * 36)
     for strat in STRATEGY_ORDER:
         r = results[strat]
         star = "  <- best" if strat == best else ""
         print(f"  {strat:<16}{r['hit_rate']:>10.3f}{r['mrr']:>10.3f}{star}")
-    print(f"\nBest strategy by MRR: {best}. Saved to {OUT}")
+    print(f"\nBest strategy by MRR: {best}. Saved to {out_path}")
     return payload
 
 
@@ -73,4 +95,6 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--k", type=int, default=10)
     ap.add_argument("--gt", dest="gt_path", default=None)
+    ap.add_argument("--rewrite", action="store_true",
+                    help="rewrite each question first (mirrors the production RAG path)")
     evaluate(**vars(ap.parse_args()))

@@ -26,24 +26,53 @@ Each strategy retrieves top-k; we score **Hit Rate@k** (relevant PMID in top-k) 
 uv run python -m pubmed_rag.evaluation.retrieval_eval --k 10
 ```
 
-Results (50 questions, k=10):
+Results on the **raw question** (50 questions, k=10):
 
 | Strategy | Hit Rate | MRR |
 |----------|:--------:|:---:|
-| keyword | 0.300 | 0.300 |
-| **vector** | **0.920** | **0.867** |
-| hybrid | 0.920 | 0.857 |
-| hybrid_rerank | 0.920 | 0.853 |
+| keyword | 0.760 | 0.532 |
+| vector | 0.920 | 0.867 |
+| hybrid | 0.920 | 0.799 |
+| **hybrid_rerank** | **0.940** | **0.882** |
 
-**Reading it:**
-- **Keyword is weak (0.30)** because the questions deliberately avoid abstract wording — lexical overlap is low. This is exactly the gap semantic search closes.
-- **Vector, hybrid, and hybrid_rerank are effectively tied** (0.92 hit rate; MRR within 0.014, well inside noise at n=50).
-- This benchmark has **one** relevant doc per question, so it rewards *finding the seed article* (vector's strength) but **cannot measure reranking's actual benefit — a diverse, non-duplicated set of relevant sources** (shown qualitatively: plain hybrid returned 6 unique articles across 8 slots vs 8/8 for hybrid_rerank).
+**Decision:** ship **`hybrid_rerank`** — it has the best hit rate *and* MRR, and (unlike the
+single-doc metric can show) returns a de-duplicated, diverse source set (8/8 unique articles
+vs 6/8 for plain hybrid on a sample query).
 
-**Decision:** keep **`hybrid_rerank`** as the default. It is statistically tied with vector
-on this metric while adding lexical robustness (exact drug names, abbreviations) and source
-diversity that the single-doc metric can't capture, and it produced the top answer scores
-below. Keyword-only is rejected.
+### Why keyword was originally weak — and the fix
+
+Our first run scored keyword at **0.30 / 0.30**. Diagnosing it revealed the cause was *query
+semantics*, not a weakness of lexical search: `websearch_to_tsquery` **ANDs every term**, so
+a ~11-word question required all terms in one ~400-token chunk — **66% of questions matched
+zero chunks** (avg 0.7 chunks matched). Switching to an **OR** query (`to_tsquery` with `|`,
+ranked by `ts_rank_cd`) lifted keyword to **0.76 / 0.53**, and — because the keyword arm now
+contributes to the fusion — pushed `hybrid_rerank` ahead of vector.
+
+| Keyword variant | Hit Rate | MRR |
+|---|:--:|:--:|
+| AND (`websearch_to_tsquery`, original) | 0.30 | 0.30 |
+| **OR (`to_tsquery` with `\|`, shipped)** | **0.76** | **0.53** |
+
+### Query rewriting (the production path)
+
+Retrieval eval above uses the raw question, but the app **rewrites the query first**
+(`rag.answer` → `rewrite_query`). Re-running with rewriting (`--rewrite`) mirrors production:
+
+| Strategy | raw HR / MRR | +rewrite HR / MRR |
+|----------|:---:|:---:|
+| keyword (OR) | 0.76 / 0.53 | 0.82 / 0.55 |
+| vector | 0.92 / 0.87 | 0.90 / 0.85 |
+| hybrid | 0.92 / 0.80 | 0.90 / 0.79 |
+| **hybrid_rerank** | 0.94 / 0.88 | **0.94 / 0.93** |
+
+Rewriting **helps the lexical/hybrid arms** (condensing to salient terms) but **slightly
+hurts pure vector** (the full question is already good semantic input). The production combo,
+**rewrite + hybrid_rerank, is the best configuration at MRR 0.93.** Reproduce with:
+
+```bash
+uv run python -m pubmed_rag.evaluation.retrieval_eval --k 10            # raw
+uv run python -m pubmed_rag.evaluation.retrieval_eval --k 10 --rewrite  # production path
+```
 
 ## Answer evaluation (LLM-as-a-judge)
 

@@ -133,10 +133,14 @@ what the app ships. Full method + results: **[docs/evaluation.md](docs/evaluatio
 
 | Strategy | Hit Rate | MRR |
 |----------|:--------:|:---:|
-| keyword | 0.300 | 0.300 |
+| keyword | 0.760 | 0.532 |
 | vector | 0.920 | 0.867 |
-| hybrid | 0.920 | 0.857 |
-| hybrid_rerank | 0.920 | 0.853 |
+| hybrid | 0.920 | 0.799 |
+| **hybrid_rerank** | **0.940** | **0.882** |
+
+With **query rewriting** (the production path), `hybrid_rerank` reaches **MRR 0.93** — the
+best configuration, and the one the app ships. The docs also explain the keyword AND→OR fix
+that this table reflects.
 
 **Answer quality** (LLM-as-a-judge, 1–5): the `structured` prompt won (**4.956** overall)
 and is the production prompt. Reproduce with `make eval`.

@@ -9,6 +9,7 @@ compared in the evaluation module.
 """
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 
 from pgvector.psycopg2 import register_vector
@@ -17,6 +18,18 @@ from .db import connect
 from .llm import embed_query
 
 RRF_K = 60  # standard reciprocal-rank-fusion constant
+
+
+def _or_tsquery(query: str) -> str:
+    """Build an OR tsquery from a natural-language question.
+
+    ``websearch_to_tsquery`` ANDs every term, so a long question requires all
+    terms in one chunk and usually matches nothing. We OR the terms instead and
+    let ``ts_rank_cd`` reward chunks that match more of them. The 'english'
+    config still stems and drops stopwords.
+    """
+    words = re.findall(r"[a-zA-Z0-9]+", query.lower())
+    return " | ".join(dict.fromkeys(w for w in words if len(w) >= 2))
 
 _SELECT = """
     SELECT c.id, c.pmid, c.section, c.content,
@@ -47,16 +60,19 @@ def _row_to_hit(row, score: float) -> Hit:
 
 
 def keyword_search(query: str, k: int = 10, conn=None) -> list[Hit]:
+    tsq = _or_tsquery(query)
+    if not tsq:
+        return []
     own = conn is None
     conn = conn or connect()
     try:
         with conn.cursor() as cur:
             cur.execute(
                 _SELECT
-                + " WHERE c.tsv @@ websearch_to_tsquery('english', %s)"
-                  " ORDER BY ts_rank_cd(c.tsv, websearch_to_tsquery('english', %s)) DESC"
+                + " WHERE c.tsv @@ to_tsquery('english', %s)"
+                  " ORDER BY ts_rank_cd(c.tsv, to_tsquery('english', %s)) DESC"
                   " LIMIT %s",
-                (query, query, k),
+                (tsq, tsq, k),
             )
             rows = cur.fetchall()
         return [_row_to_hit(r, score=1.0 / (i + 1)) for i, r in enumerate(rows)]
