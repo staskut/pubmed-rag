@@ -10,9 +10,9 @@ from pubmed_rag.config import config
 from pubmed_rag.rag import answer, save_feedback
 from pubmed_rag.retrieval import keyword_search
 
-st.set_page_config(page_title="PubMed RAG for Anesthesiology", page_icon="💊", layout="centered")
+st.set_page_config(page_title="PubMed RAG for Anesthesiology", layout="centered")
 
-st.title("💊 PubMed RAG for Anesthesiology")
+st.title("PubMed RAG for Anesthesiology")
 st.caption(
     "Ask a clinical question and get an answer grounded in PubMed literature, with citations. "
     "Retrieval runs over a knowledge base of anesthesiology papers (abstracts + PMC full text)."
