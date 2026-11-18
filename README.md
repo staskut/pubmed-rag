@@ -17,12 +17,10 @@ the retrieved evidence, and links every claim back to its source article.
 > **This is a literature-retrieval assistant, not a medical decision tool.**
 > Its answers summarize published research and are not medical advice.
 
-![PubMed RAG application](docs/images/ui.png)
+![PubMed RAG demo](docs/media/demo.gif)
 
-*The Streamlit app: ask a clinical question, get a grounded answer with numbered citations,
-retrieval strategy, latency, and cost. [Full-size image](docs/images/ui.png).*
-
-▶ **[Watch the demo video](docs/media/demo.mp4)** (~2 min).
+*End-to-end demo: ask a clinical question, retrieve and rerank PubMed evidence, read a cited
+answer, and review it all in the Grafana dashboard. ▶ [Full-length video](docs/media/demo.mp4) (~2 min).*
 
 ## Highlights
 
@@ -119,6 +117,12 @@ Sources:
 
 In the UI: type a question, pick a retrieval strategy (default `hybrid_rerank`), read the
 cited answer, expand the source cards, and leave 👍/👎 feedback.
+
+![PubMed RAG application](docs/images/ui.png)
+
+*The Streamlit app answering a clinical question — grounded answer with numbered citations,
+the retrieval strategy, latency, and cost, and expandable source cards.
+[Full-size image](docs/images/ui.png).*
 
 ## Monitoring
 
