@@ -3,6 +3,7 @@
 ![Python 3.12](https://img.shields.io/badge/python-3.12-blue?logo=python&logoColor=white)
 ![Docker Compose](https://img.shields.io/badge/Docker-compose-2496ED?logo=docker&logoColor=white)
 [![Tests](https://github.com/staskut/pubmed-rag/actions/workflows/tests.yml/badge.svg)](https://github.com/staskut/pubmed-rag/actions/workflows/tests.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 ![Corpus 5,000 papers](https://img.shields.io/badge/corpus-5%2C000%20papers-informational)
 ![Postgres + pgvector](https://img.shields.io/badge/store-Postgres%20%2B%20pgvector-336791?logo=postgresql&logoColor=white)
 
@@ -20,6 +21,8 @@ the retrieved evidence, and links every claim back to its source article.
 
 *The Streamlit app: ask a clinical question, get a grounded answer with numbered citations,
 retrieval strategy, latency, and cost. [Full-size image](docs/images/ui.png).*
+
+▶ **[Watch the demo video](docs/media/demo.mp4)** (~2 min).
 
 ## Highlights
 
@@ -188,6 +191,8 @@ Full module-by-module breakdown: **[docs/setup.md](docs/setup.md#project-structu
   [NCBI's usage policies](https://www.ncbi.nlm.nih.gov/home/about/policies/).
 - This is a literature-retrieval assistant for research and educational use, **not** a
   medical decision tool. Answers are not medical advice.
+- **License:** the project's own code is released under the [MIT License](LICENSE). The
+  underlying article text and metadata remain subject to NCBI's terms above.
 
 > **Note on authorship.** This project was built by [@staskut](https://github.com/staskut)
 > with AI assistance (Claude Code) for implementation and documentation. Commit co-author
