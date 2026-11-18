@@ -1,4 +1,4 @@
-"""Streamlit UI for the Anesthesiology PubMed Q&A system.
+"""Streamlit UI for the PubMed RAG for Anesthesiology system.
 
 Run:  uv run streamlit run app.py
 """
@@ -10,9 +10,9 @@ from pubmed_rag.config import config
 from pubmed_rag.rag import answer, save_feedback
 from pubmed_rag.retrieval import keyword_search
 
-st.set_page_config(page_title="Anesthesiology PubMed Q&A", page_icon="💊", layout="centered")
+st.set_page_config(page_title="PubMed RAG for Anesthesiology", page_icon="💊", layout="centered")
 
-st.title("💊 Anesthesiology PubMed Q&A")
+st.title("💊 PubMed RAG for Anesthesiology")
 st.caption(
     "Ask a clinical question and get an answer grounded in PubMed literature, with citations. "
     "Retrieval runs over a knowledge base of anesthesiology papers (abstracts + PMC full text)."
