@@ -22,7 +22,7 @@ the retrieved evidence, and links every claim back to its source article.
 *The Streamlit app: ask a clinical question, get a grounded answer with numbered citations,
 retrieval strategy, latency, and cost. [Full-size image](docs/images/ui.png).*
 
-▶ **[Watch the demo video](docs/media/demo.mp4)** (~3 min).
+▶ **[Watch the demo video](docs/media/demo.mp4)** (~2 min).
 
 ## Highlights
 
